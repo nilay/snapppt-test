@@ -36,18 +36,15 @@ class JsonStreamParser
       data = previous_data + data
       data.split('').each { |c| 
         adjust_stack c
-        
         object_start_position = index if @stack_object == 1 && c == '{'
-        
         
         # yeild json if  object is completed
         yield JSON.parse(data[object_start_position, (index - object_start_position) +1 ]).tap { |hs| hs.delete("_id") } if @stack_object == 0 && c == '}' && object_start_position > -1 
-    
         index += 1
       }
 
       if @stack_object == 1
-        # current block do not end the opening json object. Keep the remaining string to be added in next block
+        # current block has not been completed the opening json object. Keep the remaining string to be added in next block
         previous_data = data[object_start_position..-1]
         @stack_object       = 0
       end 
